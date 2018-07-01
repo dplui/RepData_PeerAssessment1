@@ -24,7 +24,8 @@ The dataset is stored in a comma-separated-value (CSV) file and there are a tota
 ## Loading and preprocessing the data
 
 The data is sourced and loaded as follows:
-```{r}
+
+```r
 ### Check to see if data is in working directory and load the data
 if (file.exists("activity.zip") == FALSE){
   fileurl <- "https://www.coursera.org/learn/reproducible-research/peer/gYyPt/course-project-1"
@@ -39,7 +40,8 @@ Note that to simplify working with the data and later plotting I do not process 
 
 The totals for the number of steps taken each per day is indicated in the histogram below.
 
-```{r}
+
+```r
 ### Calculate the total number of steps each day
 daytotalsdata <- tapply(data$steps, data$date, sum)
 daytotals <- as.data.frame(daytotalsdata)
@@ -49,20 +51,36 @@ colnames(daytotals) <- (c("day", "steps"))
 
 ### Make a histogram of the total number of steps taken each day
 hist(daytotals$steps,breaks=10, main = "Total no. of Steps per Day", xlab = "Steps")
+```
 
+![](PA1_template_files/figure-html/unnamed-chunk-2-1.png)<!-- -->
+
+```r
 ### Calculate and report the mean and median of the total number of steps taken per day
 meansteps <- as.integer(mean(daytotals$steps, na.rm = TRUE))
 mediansteps <- as.integer(median(daytotals$steps, na.rm = TRUE))
 print(meansteps)
+```
+
+```
+## [1] 10766
+```
+
+```r
 print (mediansteps)
 ```
-The mean number of steps taken per day is `r meansteps`.
-The median number of steps taken per day is `r mediansteps`.
+
+```
+## [1] 10765
+```
+The mean number of steps taken per day is 10766.
+The median number of steps taken per day is 10765.
 
 ## What is the average daily activity pattern?
 
 The average daily pattern is indicated in the plot below.
-```{r}
+
+```r
 ### Make a time series plot of the 5-minute interval (x-axis) and the average number of steps taken, averaged across all days (y-axis)
 
 intervalmeans <- as.data.frame(tapply(data$steps, data$interval, mean, na.rm = TRUE))
@@ -71,24 +89,38 @@ intervalmeans <- cbind(as.numeric(intervaldata),intervalmeans)
 colnames(intervalmeans) <- (c("interval", "meansteps"))
 
 with(intervalmeans, plot(meansteps ~ interval, ylab = "Mean no. of Steps", xlab = "Interval (Time of Day)", type = "l"))
+```
 
+![](PA1_template_files/figure-html/unnamed-chunk-3-1.png)<!-- -->
+
+```r
 maxinterval <- names(which.max(intervalmeans$meansteps))
 print(maxinterval)
 ```
-The interval (time period) with the greatest mean number of steps is `r maxinterval`.
+
+```
+## [1] "835"
+```
+The interval (time period) with the greatest mean number of steps is 835.
 
 ## Imputing missing values
 
-```{r}
+
+```r
 ### Calculate and report the total number of missing values in the dataset
 missingvalues <- missingvalues <- sum(is.na(data$steps))
 print(missingvalues)
 ```
-The total number of missing values for the steps variable in the data is `r missingvalues`.
 
-I use the calculated mean value for each interval to impute values for of these `r missingvalues` missing entries. 
+```
+## [1] 2304
+```
+The total number of missing values for the steps variable in the data is 2304.
 
-```{r}
+I use the calculated mean value for each interval to impute values for of these 2304 missing entries. 
+
+
+```r
 ### Create a new dataset that is equal to the original dataset but with the missing data filled in.
 data2 <- data
 
@@ -100,7 +132,8 @@ for (i in 1:length(data2$steps)){
 ```
 The total number of steps taken each per day using the updated dataset (i.e. including imputed values in place of missing values) is indicated in the histogram below.
 
-```{r}
+
+```r
 ### Make a histogram of the total number of steps taken each day 
 daytotalsdata2 <- tapply(data2$steps, data2$date, sum)
 daytotals2 <- as.data.frame(daytotalsdata2)
@@ -111,20 +144,36 @@ colnames(daytotals2) <- (c("day", "steps"))
 par(mfrow=c(1,2))
 hist(daytotals$steps,breaks=10, main = "Total Steps per Day", xlab = "Steps", ylim=c(0,25))
 hist(daytotals2$steps,breaks=10, main = "Total Steps per Day (with imputed values)", xlab = "Steps",ylim=c(0,25))
+```
 
+![](PA1_template_files/figure-html/unnamed-chunk-6-1.png)<!-- -->
+
+```r
 ### Calculate and report the mean and median total number of steps taken per day.
 meansteps2 <- mean(daytotals2$steps, na.rm = TRUE)
 mediansteps2 <- median(daytotals2$steps, na.rm = TRUE)
 print(meansteps2)
+```
+
+```
+## [1] 10766.19
+```
+
+```r
 print (mediansteps2)
 ```
-Using the dataset with imputed values inserted, the mean total number of steps taken per day is `r meansteps2`. The median total number of steps taken per day is `r mediansteps2`. 
+
+```
+## [1] 10766.19
+```
+Using the dataset with imputed values inserted, the mean total number of steps taken per day is 1.0766189\times 10^{4}. The median total number of steps taken per day is 1.0766189\times 10^{4}. 
 
 The mean total number of steps is therefore not changed using this imputation method, while the median total number of steps differs only slightly.
 
 ## Are there differences in activity patterns between weekdays and weekends?
 
-```{r}
+
+```r
 ### Create a new factor variable in the dataset with two levels - "weekday" and "weekend" indicating whether a given date is a weekday or weekend day.
 weekdays1 <- c()
 for (i in 1:length(data2$date)){
@@ -138,7 +187,8 @@ weekdays1 <- as.factor(weekdays1)
 data2 <- cbind(data2, weekdays1)
 ```
 The average daily pattern, broken down by weekend days and weekdays, is indicated in the plots below.
-```{r}
+
+```r
 ### Make a panel plot containing a time series plot of the 5-minute interval (x-axis) and the average number of steps taken, averaged across all weekday days or weekend days (y-axis).
 
 data3 <- data2[data2$weekdays1 == "weekday",]
@@ -158,5 +208,7 @@ data5 <- rbind(intervalmeans3,intervalmeans4)
 library(lattice)
 xyplot(meansteps ~ interval | weekdays1, data = data5, layout = c(1, 2), type = "l", scales = list())
 ```
+
+![](PA1_template_files/figure-html/unnamed-chunk-8-1.png)<!-- -->
 
 The histograms indicate a difference in the activity patterns during weekdays and weekends. Broadly speaking there is greater activity later in the day (between the hours of approximately 1000 and 2000) at weekends, compared to weekdays. 
